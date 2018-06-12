@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Animate.css</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="initial-scale=1, minimal-ui"/>
+
+    <link rel="stylesheet" href="animate.css"/>
+
+    <link rel="stylesheet" href="demo/grid.css"/>
+    <script type="application/javascript" src="demo/namespaceapplication.js"></script>
+
+    <style>
+        html, body {
+            height: 100%;
+        }
+        .table {
+            height: 100%;
+        }
+        #menu {
+            background-color: #3a3a3a;
+            color: #a8a8a8;
+            border-right: 4px solid #4b4b4b;
+        }
+        #list {
+            height: 100%;
+            overflow-y: auto;
+        }
+        #list h3 {
+            padding: 15px 10px 3px 10px;
+        }
+        #list ul li{
+            padding: 3px 15px;
+            cursor: pointer;
+        }
+        #list ul li:hover{
+            padding-left: 20px;
+            background-color: #2f2f2f;
+        }
+
+        #content {
+            background-color: #2f2f2f;
+            color: #a8a8a8;
+        }
+
+        #animateObject {
+            display: inline-block;
+            padding: 10px;
+            background-color: #525252;
+            left: 40%;
+            position: relative;
+        }
+        #animateObject p {
+            font-size: 28px;
+        }
+        #animateDescription{
+            padding: 2px;
+            background-color: darkred;
+            border: 1px solid #202020;
+            color: #dcefff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="table">
+    <div id="menu" class="width-20">
+        <div id="list"></div>
+    </div>
+    <div id="content" class="width-80">
+        <div id="animateObject">
+            <p>Animate.CSS</p>
+            <div id="animateDescription">class=""</div>
+        </div>
+    </div>
+</div>
+
+<script type="application/javascript">
+
+  const NApp = new NamespaceApplication({
+
+    elementMenu: NSA.query('#menu'),
+    elementList: NSA.query('#list'),
+    elementContent: NSA.query('#content'),
+    elementAnimateDescription: NSA.query('#animateDescription'),
+    elementAnimateObject: NSA.query('#animateObject'),
+
+    onLoadAnimateConfig: function (status, menusData) {
+      if (status === 200) {
+        this.createMenu(JSON.parse(menusData));
+
+        NApp.elementAnimateObject.addEventListener('animationend', function (eve) {
+          this.className = '';
+        })
+      }
+    },
+
+    createMenu: function (menusData) {
+      NSA.each(menusData, function (menusElems, key) {
+        var ul = NSA.createElement('ul');
+        NSA.each(menusElems, function (elem) {
+          ul.appendChild(
+            NSA.createElement('li', {'data-class': elem}, elem)
+          );
+        });
+        NApp.elementList.appendChild(NSA.createElement('h3', {}, key.replace('_', ' ').toUpperCase()));
+        NApp.elementList.appendChild(ul);
+      });
+
+      this.on(this.elementMenu, 'click', this.onClickMenu);
+    },
+
+    onClickMenu: function (eve) {
+      if (eve.target.tagName === 'LI') {
+        NApp.showAnimation(eve.target.getAttribute('data-class'))
+      }
+    },
+
+    showAnimation: function (aClassName) {
+      NApp.elementAnimateObject.className = aClassName + ' animated';
+      NApp.inject(NApp.elementAnimateDescription, '<code>class="' + aClassName + ' animated' + '"</code>')
+    }
+
+  });
+
+  NApp.httpRequest({method: 'GET', action: './animate-config.json'}, NApp.onLoadAnimateConfig, NApp);
+
+</script>
+
+</body>
+</html>
